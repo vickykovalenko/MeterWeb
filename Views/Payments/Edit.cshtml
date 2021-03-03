@@ -1,0 +1,49 @@
+﻿@model MeterWeb.Payment
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Payment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PaymentId" />
+            <div class="form-group">
+                <label asp-for="PaymentDataOfCurrrentPayment" class="control-label"></label>
+                <input asp-for="PaymentDataOfCurrrentPayment" class="form-control" />
+                <span asp-validation-for="PaymentDataOfCurrrentPayment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentSumOfCurrentMonthPayment" class="control-label"></label>
+                <input asp-for="PaymentSumOfCurrentMonthPayment" class="form-control" />
+                <span asp-validation-for="PaymentSumOfCurrentMonthPayment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentDiscount" class="control-label"></label>
+                <input asp-for="PaymentDiscount" class="form-control" />
+                <span asp-validation-for="PaymentDiscount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentTariffId" class="control-label"></label>
+                <select asp-for="PaymentTariffId" class="form-control" asp-items="ViewBag.PaymentTariffId"></select>
+                <span asp-validation-for="PaymentTariffId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -7,24 +7,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MeterWeb;
 
-namespace MeterWeb.Models
+namespace MeterWeb.Controllers
 {
-    public class FlatsController : Controller
+    public class MeterTypesController : Controller
     {
         private readonly DBLibraryContext _context;
 
-        public FlatsController(DBLibraryContext context)
+        public MeterTypesController(DBLibraryContext context)
         {
             _context = context;
         }
 
-        // GET: Flats
+        // GET: MeterTypes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Flats.ToListAsync());
+            var dBLibraryContext = _context.MeterTypes.Include(m => m.MeterService);
+            return View(await dBLibraryContext.ToListAsync());
         }
 
-        // GET: Flats/Details/5
+        // GET: MeterTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -32,39 +33,42 @@ namespace MeterWeb.Models
                 return NotFound();
             }
 
-            var flat = await _context.Flats
-                .FirstOrDefaultAsync(m => m.FlatId == id);
-            if (flat == null)
+            var meterType = await _context.MeterTypes
+                .Include(m => m.MeterService)
+                .FirstOrDefaultAsync(m => m.MeterTypeId == id);
+            if (meterType == null)
             {
                 return NotFound();
             }
 
-            return View(flat);
+            return View(meterType);
         }
 
-        // GET: Flats/Create
+        // GET: MeterTypes/Create
         public IActionResult Create()
         {
+            ViewData["MeterServiceId"] = new SelectList(_context.Services, "ServiceId", "ServiceName");
             return View();
         }
 
-        // POST: Flats/Create
+        // POST: MeterTypes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FlatId,FlatAddress")] Flat flat)
+        public async Task<IActionResult> Create([Bind("MeterTypeId,MeterTypeName,MeterServiceId")] MeterType meterType)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(flat);
+                _context.Add(meterType);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(flat);
+            ViewData["MeterServiceId"] = new SelectList(_context.Services, "ServiceId", "ServiceName", meterType.MeterServiceId);
+            return View(meterType);
         }
 
-        // GET: Flats/Edit/5
+        // GET: MeterTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -72,22 +76,23 @@ namespace MeterWeb.Models
                 return NotFound();
             }
 
-            var flat = await _context.Flats.FindAsync(id);
-            if (flat == null)
+            var meterType = await _context.MeterTypes.FindAsync(id);
+            if (meterType == null)
             {
                 return NotFound();
             }
-            return View(flat);
+            ViewData["MeterServiceId"] = new SelectList(_context.Services, "ServiceId", "ServiceName", meterType.MeterServiceId);
+            return View(meterType);
         }
 
-        // POST: Flats/Edit/5
+        // POST: MeterTypes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("FlatId,FlatAddress")] Flat flat)
+        public async Task<IActionResult> Edit(int id, [Bind("MeterTypeId,MeterTypeName,MeterServiceId")] MeterType meterType)
         {
-            if (id != flat.FlatId)
+            if (id != meterType.MeterTypeId)
             {
                 return NotFound();
             }
@@ -96,12 +101,12 @@ namespace MeterWeb.Models
             {
                 try
                 {
-                    _context.Update(flat);
+                    _context.Update(meterType);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FlatExists(flat.FlatId))
+                    if (!MeterTypeExists(meterType.MeterTypeId))
                     {
                         return NotFound();
                     }
@@ -112,10 +117,11 @@ namespace MeterWeb.Models
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(flat);
+            ViewData["MeterServiceId"] = new SelectList(_context.Services, "ServiceId", "ServiceName", meterType.MeterServiceId);
+            return View(meterType);
         }
 
-        // GET: Flats/Delete/5
+        // GET: MeterTypes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -123,30 +129,31 @@ namespace MeterWeb.Models
                 return NotFound();
             }
 
-            var flat = await _context.Flats
-                .FirstOrDefaultAsync(m => m.FlatId == id);
-            if (flat == null)
+            var meterType = await _context.MeterTypes
+                .Include(m => m.MeterService)
+                .FirstOrDefaultAsync(m => m.MeterTypeId == id);
+            if (meterType == null)
             {
                 return NotFound();
             }
 
-            return View(flat);
+            return View(meterType);
         }
 
-        // POST: Flats/Delete/5
+        // POST: MeterTypes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var flat = await _context.Flats.FindAsync(id);
-            _context.Flats.Remove(flat);
+            var meterType = await _context.MeterTypes.FindAsync(id);
+            _context.MeterTypes.Remove(meterType);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FlatExists(int id)
+        private bool MeterTypeExists(int id)
         {
-            return _context.Flats.Any(e => e.FlatId == id);
+            return _context.MeterTypes.Any(e => e.MeterTypeId == id);
         }
     }
 }

@@ -1,0 +1,41 @@
+﻿@model IEnumerable<MeterWeb.MeterType>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MeterTypeName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MeterService)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterTypeName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterService.ServiceName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MeterTypeId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.MeterTypeId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.MeterTypeId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

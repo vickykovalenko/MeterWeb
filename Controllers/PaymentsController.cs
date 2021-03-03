@@ -7,25 +7,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MeterWeb;
 
-namespace MeterWeb.Models
+namespace MeterWeb.Controllers
 {
-    public class MetersController : Controller
+    public class PaymentsController : Controller
     {
         private readonly DBLibraryContext _context;
 
-        public MetersController(DBLibraryContext context)
+        public PaymentsController(DBLibraryContext context)
         {
             _context = context;
         }
 
-        // GET: Meters
+        // GET: Payments
         public async Task<IActionResult> Index()
         {
-            var dBLibraryContext = _context.Meters.Include(m => m.MeterFlat).Include(m => m.MeterType);
+            var dBLibraryContext = _context.Payments.Include(p => p.PaymentTariff);
             return View(await dBLibraryContext.ToListAsync());
         }
 
-        // GET: Meters/Details/5
+        // GET: Payments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,45 +33,42 @@ namespace MeterWeb.Models
                 return NotFound();
             }
 
-            var meter = await _context.Meters
-                .Include(m => m.MeterFlat)
-                .Include(m => m.MeterType)
-                .FirstOrDefaultAsync(m => m.MeterId == id);
-            if (meter == null)
+            var payment = await _context.Payments
+                .Include(p => p.PaymentTariff)
+                .FirstOrDefaultAsync(m => m.PaymentId == id);
+            if (payment == null)
             {
                 return NotFound();
             }
 
-            return View(meter);
+            return View(payment);
         }
 
-        // GET: Meters/Create
+        // GET: Payments/Create
         public IActionResult Create()
         {
-            ViewData["MeterFlatId"] = new SelectList(_context.Flats, "FlatId", "FlatAddress");
-            ViewData["MeterTypeId"] = new SelectList(_context.MeterTypes, "MeterTypeId", "MeterTypeName");
+            ViewData["PaymentTariffId"] = new SelectList(_context.Tariffs, "TariffId", "TariffPrivilege");
             return View();
         }
 
-        // POST: Meters/Create
+        // POST: Payments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MeterId,MeterNumbers,MeterTypeId,MeterFlatId,MeterDataLastReplacement")] Meter meter)
+        public async Task<IActionResult> Create([Bind("PaymentId,PaymentDataOfCurrrentPayment,PaymentSumOfCurrentMonthPayment,PaymentDiscount,PaymentTariffId")] Payment payment)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(meter);
+                _context.Add(payment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MeterFlatId"] = new SelectList(_context.Flats, "FlatId", "FlatAddress", meter.MeterFlatId);
-            ViewData["MeterTypeId"] = new SelectList(_context.MeterTypes, "MeterTypeId", "MeterTypeName", meter.MeterTypeId);
-            return View(meter);
+            ViewData["PaymentTariffId"] = new SelectList(_context.Tariffs, "TariffId", "TariffPrivilege", payment.PaymentTariffId);
+            return View(payment);
         }
 
-        // GET: Meters/Edit/5
+        // GET: Payments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -79,24 +76,23 @@ namespace MeterWeb.Models
                 return NotFound();
             }
 
-            var meter = await _context.Meters.FindAsync(id);
-            if (meter == null)
+            var payment = await _context.Payments.FindAsync(id);
+            if (payment == null)
             {
                 return NotFound();
             }
-            ViewData["MeterFlatId"] = new SelectList(_context.Flats, "FlatId", "FlatAddress", meter.MeterFlatId);
-            ViewData["MeterTypeId"] = new SelectList(_context.MeterTypes, "MeterTypeId", "MeterTypeName", meter.MeterTypeId);
-            return View(meter);
+            ViewData["PaymentTariffId"] = new SelectList(_context.Tariffs, "TariffId", "TariffPrivilege", payment.PaymentTariffId);
+            return View(payment);
         }
 
-        // POST: Meters/Edit/5
+        // POST: Payments/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MeterId,MeterNumbers,MeterTypeId,MeterFlatId,MeterDataLastReplacement")] Meter meter)
+        public async Task<IActionResult> Edit(int id, [Bind("PaymentId,PaymentDataOfCurrrentPayment,PaymentSumOfCurrentMonthPayment,PaymentDiscount,PaymentTariffId")] Payment payment)
         {
-            if (id != meter.MeterId)
+            if (id != payment.PaymentId)
             {
                 return NotFound();
             }
@@ -105,12 +101,12 @@ namespace MeterWeb.Models
             {
                 try
                 {
-                    _context.Update(meter);
+                    _context.Update(payment);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MeterExists(meter.MeterId))
+                    if (!PaymentExists(payment.PaymentId))
                     {
                         return NotFound();
                     }
@@ -121,12 +117,11 @@ namespace MeterWeb.Models
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MeterFlatId"] = new SelectList(_context.Flats, "FlatId", "FlatAddress", meter.MeterFlatId);
-            ViewData["MeterTypeId"] = new SelectList(_context.MeterTypes, "MeterTypeId", "MeterTypeName", meter.MeterTypeId);
-            return View(meter);
+            ViewData["PaymentTariffId"] = new SelectList(_context.Tariffs, "TariffId", "TariffPrivilege", payment.PaymentTariffId);
+            return View(payment);
         }
 
-        // GET: Meters/Delete/5
+        // GET: Payments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,32 +129,31 @@ namespace MeterWeb.Models
                 return NotFound();
             }
 
-            var meter = await _context.Meters
-                .Include(m => m.MeterFlat)
-                .Include(m => m.MeterType)
-                .FirstOrDefaultAsync(m => m.MeterId == id);
-            if (meter == null)
+            var payment = await _context.Payments
+                .Include(p => p.PaymentTariff)
+                .FirstOrDefaultAsync(m => m.PaymentId == id);
+            if (payment == null)
             {
                 return NotFound();
             }
 
-            return View(meter);
+            return View(payment);
         }
 
-        // POST: Meters/Delete/5
+        // POST: Payments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var meter = await _context.Meters.FindAsync(id);
-            _context.Meters.Remove(meter);
+            var payment = await _context.Payments.FindAsync(id);
+            _context.Payments.Remove(payment);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MeterExists(int id)
+        private bool PaymentExists(int id)
         {
-            return _context.Meters.Any(e => e.MeterId == id);
+            return _context.Payments.Any(e => e.PaymentId == id);
         }
     }
 }

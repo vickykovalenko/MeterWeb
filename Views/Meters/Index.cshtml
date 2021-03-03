@@ -1,13 +1,14 @@
 ﻿@model IEnumerable<MeterWeb.Meter>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Лічильники за адресою";
 }
 
-<h1>Index</h1>
+<h1>Лічильники за квартирою @ViewBag.FlatAddress</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+
+    @Html.ActionLink("Додати новий лічильник", "Create", new { FlatId = @ViewBag.FlatId })
 </p>
 <table class="table">
     <thead>
@@ -28,26 +29,27 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.MeterNumbers)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MeterDataLastReplacement)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MeterFlat.FlatAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MeterType.MeterTypeName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MeterId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MeterId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MeterId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeterNumbers)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeterDataLastReplacement)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeterFlat.FlatAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeterType.MeterTypeName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MeterId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.MeterId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MeterId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
