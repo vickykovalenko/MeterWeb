@@ -48,7 +48,8 @@ namespace MeterWeb.Controllers
                 return NotFound();
             }
 
-            return View(meter);
+            //return View(meter);
+            return RedirectToAction("Index", "Readings", new { id = meter.MeterId, numbers = meter.MeterNumbers});
         }
 
         // GET: Meters/Create
@@ -57,6 +58,7 @@ namespace MeterWeb.Controllers
             //ViewData["MeterFlatId"] = new SelectList(_context.Flats, "FlatId", "FlatAddress");
             ViewData["MeterTypeId"] = new SelectList(_context.MeterTypes, "MeterTypeId", "MeterTypeName");
             ViewBag.MeterFlatId = flatId;
+
             ViewBag.FlatAddress = _context.Flats.Where(f => f.FlatId == flatId).FirstOrDefault().FlatAddress;
             return View();
         }
@@ -66,7 +68,7 @@ namespace MeterWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int flatId, [Bind("MeterId,MeterNumbers,MeterTypeId,MeterFlatId,MeterDataLastReplacement")] Meter meter)
+        public async Task<IActionResult> Create(int flatId, [Bind("MeterId,MeterNumbers,MeterTypeId, MeterFlatId,MeterDataLastReplacement")] Meter meter)
         {
             meter.MeterFlatId = flatId;
             if (ModelState.IsValid)
@@ -74,7 +76,7 @@ namespace MeterWeb.Controllers
                 _context.Add(meter);
                 await _context.SaveChangesAsync();
                 //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Index", "Meters", new { MeterId = flatId, name = _context.Flats.Where(f => f.FlatId == flatId).FirstOrDefault().FlatAddress });
+                return RedirectToAction("Index", "Meters", new { id = flatId, address = _context.Flats.Where(f => f.FlatId == flatId).FirstOrDefault().FlatAddress });
             }
             //ViewData["MeterFlatId"] = new SelectList(_context.Flats, "FlatId", "FlatAddress", meter.MeterFlatId);
             //ViewData["MeterTypeId"] = new SelectList(_context.MeterTypes, "MeterTypeId", "MeterTypeName", meter.MeterTypeId);

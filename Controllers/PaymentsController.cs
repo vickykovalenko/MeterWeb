@@ -19,8 +19,10 @@ namespace MeterWeb.Controllers
         }
 
         // GET: Payments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id, int? number)
         {
+            if (id == null) return RedirectToAction("Readings", "Index");
+            
             var dBLibraryContext = _context.Payments.Include(p => p.PaymentTariff);
             return View(await dBLibraryContext.ToListAsync());
         }

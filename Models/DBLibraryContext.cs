@@ -155,6 +155,12 @@ namespace MeterWeb
                     .HasForeignKey(d => d.ReadingPaymentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_READINGS_PAYMENTS");
+
+                entity.Property(e => e.ReadingNumber).HasColumnName("READING_NUMBER");
+
+
+
+
             });
 
             modelBuilder.Entity<Service>(entity =>

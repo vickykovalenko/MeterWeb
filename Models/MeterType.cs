@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 
 #nullable disable
 
@@ -13,6 +15,7 @@ namespace MeterWeb
         }
 
         public int MeterTypeId { get; set; }
+        [Display(Name = "Тип лічильника")]
         public string MeterTypeName { get; set; }
         public int MeterServiceId { get; set; }
 

@@ -1,0 +1,42 @@
+﻿@model MeterWeb.Reading
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Додати покази до лічильника @ViewBag.MeterNumber</h1>
+
+<h4>Reading</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ReadingNumber" class="control-label"></label>
+                <input asp-for="ReadingNumber" class="form-control" />
+                <span asp-validation-for="ReadingNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReadingDataOfCurrentReading" class="control-label"></label>
+                <input asp-for="ReadingDataOfCurrentReading" class="form-control" />
+                <span asp-validation-for="ReadingDataOfCurrentReading" class="text-danger"></span>
+            </div>
+            <input type="hidden" value="@ViewBag.ReadingPaymentId" name="ReadingPaymentId" />
+
+
+            <input type="hidden" value="@ViewBag.MeterId" name="ReadingMeterId" />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

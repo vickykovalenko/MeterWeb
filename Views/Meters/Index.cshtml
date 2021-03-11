@@ -4,11 +4,11 @@
     ViewData["Title"] = "Лічильники за адресою";
 }
 
-<h1>Лічильники за квартирою @ViewBag.FlatAddress</h1>
+<h1>Лічильники за адресою @ViewBag.FlatAddress</h1>
 
 <p>
 
-    @Html.ActionLink("Додати новий лічильник", "Create", new { FlatId = @ViewBag.FlatId })
+    @Html.ActionLink("Додати новий лічильник", "Create", new { flatId = @ViewBag.FlatId })
 </p>
 <table class="table">
     <thead>
@@ -20,36 +20,30 @@
                 @Html.DisplayNameFor(model => model.MeterDataLastReplacement)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MeterFlat)
+                @Html.DisplayNameFor(model => model.MeterType.MeterTypeName)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MeterType)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MeterNumbers)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MeterDataLastReplacement)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MeterFlat.FlatAddress)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MeterType.MeterTypeName)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.MeterId">Редагувати</a> |
-                    <a asp-action="Details" asp-route-id="@item.MeterId">Деталі</a> |
-                    <a asp-action="Delete" asp-route-id="@item.MeterId">Видалити</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterNumbers)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterDataLastReplacement)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterType.MeterTypeName)
+            </td>
+
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MeterId">Редагувати</a> |
+                <a asp-action="Details" asp-route-id="@item.MeterId">Деталі</a> |
+                <a asp-action="Delete" asp-route-id="@item.MeterId">Видалити</a>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
