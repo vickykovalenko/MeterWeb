@@ -5,10 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MeterWeb;
+using ClosedXML.Excel;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using GemBox.Document;
+
 
 namespace MeterWeb.Controllers
 {
+
     public class MetersController : Controller
     {
         private readonly DBLibraryContext _context;
@@ -18,6 +23,7 @@ namespace MeterWeb.Controllers
             _context = context;
         }
 
+
         // GET: Meters
         public async Task<IActionResult> Index(int? id, string? address)
         {
@@ -25,7 +31,7 @@ namespace MeterWeb.Controllers
             //знаходження квартир за адресою
             ViewBag.FlatId = id;
             ViewBag.FlatAddress = address;
-            var meterByFlat = _context.Meters.Where(m => m.MeterFlatId == id).Include(m => m.MeterFlat).Include(m =>m.MeterType);
+            var meterByFlat = _context.Meters.Where(m => m.MeterFlatId == id).Include(m => m.MeterFlat).Include(m => m.MeterType);
             //var dBLibraryContext = _context.Meters.Include(m => m.MeterFlat).Include(m => m.MeterType);
             //return View(await dBLibraryContext.ToListAsync());
             return View(await meterByFlat.ToListAsync());
@@ -49,7 +55,7 @@ namespace MeterWeb.Controllers
             }
 
             //return View(meter);
-            return RedirectToAction("Index", "Readings", new { id = meter.MeterId, numbers = meter.MeterNumbers});
+            return RedirectToAction("Index", "Readings", new { id = meter.MeterId, numbers = meter.MeterNumbers });
         }
 
         // GET: Meters/Create
@@ -83,7 +89,7 @@ namespace MeterWeb.Controllers
 
             return View(meter);
 
-           // return RedirectToAction("Index", "Meters", new { MeterId = flatId, name = _context.Flats.Where(f => f.FlatId == flatId).FirstOrDefault().FlatAddress });
+            // return RedirectToAction("Index", "Meters", new { MeterId = flatId, name = _context.Flats.Where(f => f.FlatId == flatId).FirstOrDefault().FlatAddress });
         }
 
         // GET: Meters/Edit/5
@@ -153,6 +159,7 @@ namespace MeterWeb.Controllers
                 .Include(m => m.MeterFlat)
                 .Include(m => m.MeterType)
                 .FirstOrDefaultAsync(m => m.MeterId == id);
+
             if (meter == null)
             {
                 return NotFound();
@@ -167,6 +174,11 @@ namespace MeterWeb.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var meter = await _context.Meters.FindAsync(id);
+            var readingIds = _context.Readings.Where(r => r.ReadingMeterId == id);
+            foreach (var item in readingIds)
+            {
+                _context.Readings.Remove(item);
+            }
             _context.Meters.Remove(meter);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -176,5 +188,120 @@ namespace MeterWeb.Controllers
         {
             return _context.Meters.Any(e => e.MeterId == id);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(IFormFile fileExcel, int flatId)
+        {
+            if (ModelState.IsValid)
+            {
+                if (fileExcel != null)
+                {
+                    using (var stream = new FileStream(fileExcel.FileName, FileMode.Create))
+                    {
+                        await fileExcel.CopyToAsync(stream);
+                        using (XLWorkbook workBook = new XLWorkbook(stream, XLEventTracking.Disabled))
+                        {
+                            //перегляд усіх листів (в даному випадку видів лічильників)
+                            foreach (IXLWorksheet worksheet in workBook.Worksheets)
+                            {
+                                //worksheet.Name - назва типу лічильника. Пробуємо знайти в БД, якщо відсутній, то створюємо новий
+                                MeterType metertype;
+                                var m = (from met in _context.MeterTypes
+                                         where met.MeterTypeName.Contains(worksheet.Name)
+                                         select met).ToList();
+                                if (m.Count > 0)
+                                {
+                                    metertype = m[0];
+                                }
+                                else
+                                {
+                                    metertype = new MeterType();
+                                    metertype.MeterTypeName = worksheet.Name;
+
+                                    //додати в контекст
+                                    _context.MeterTypes.Add(metertype);
+
+                                }
+                                //перегляд усіх рядків                    
+                                foreach (IXLRow row in worksheet.RowsUsed().Skip(1))
+                                {
+                                    try
+                                    {
+                                        Meter meter = new Meter();
+                                        //meter.MeterFlatId = Convert.ToInt32(row.Cell(1).Value);
+                                        meter.MeterFlatId = flatId;
+                                        meter.MeterNumbers = Convert.ToInt32(row.Cell(1).Value);
+                                        meter.MeterDataLastReplacement = Convert.ToDateTime(row.Cell(2).Value);
+                                        meter.MeterTypeId = metertype.MeterTypeId;
+                                        
+
+                                        _context.Meters.Add(meter);
+                                    }
+                                    catch (Exception e)
+                                    {
+
+                                        return View();
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+
+        await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        public ActionResult Export()
+        {
+            using (XLWorkbook workbook = new XLWorkbook(XLEventTracking.Disabled))
+            {
+                var metertypes = _context.MeterTypes.Include("Meters").ToList();
+                //тут, для прикладу ми пишемо усі книжки з БД, в своїх проектах ТАК НЕ РОБИТИ (писати лише вибрані)
+                foreach (var m in metertypes)
+                {
+                    var worksheet = workbook.Worksheets.Add(m.MeterTypeName);
+                    worksheet.Cell("A1").Value = "MeterFlatId";
+
+                    worksheet.Cell("B1").Value = "MeterNumbers";
+                    worksheet.Cell("C1").Value = "DataLastReplacement";
+                   
+
+                    worksheet.Row(1).Style.Font.Bold = true;
+                    var meters = m.Meters.ToList();
+
+                    //нумерація рядків/стовпчиків починається з індекса 1 (не 0)
+                    for (int i = 0; i < meters.Count; i++)
+                    {
+                        worksheet.Cell(i + 2, 1).Value = meters[i].MeterFlatId;
+                        worksheet.Cell(i + 2, 2).Value = meters[i].MeterNumbers;
+                        worksheet.Cell(i + 2, 3).Value = meters[i].MeterDataLastReplacement;
+
+
+
+
+
+                    }
+
+                }
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    stream.Flush();
+
+                    return new FileContentResult(stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    {
+                        FileDownloadName = $"library_{DateTime.UtcNow.ToShortDateString()}.xlsx"
+                    };
+                }
+            }
+        }
     }
 }
+

@@ -12,9 +12,12 @@ namespace MeterWeb
         {
             Meters = new HashSet<Meter>();
         }
-
+        
+        public string UserId { get; set; }
         public int FlatId { get; set; }
         [Required(ErrorMessage = "Поле не повинно бути порожнім ")]
+        
+
         [Display(Name = "Адреса")]
         public string FlatAddress { get; set; }
    

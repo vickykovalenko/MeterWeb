@@ -5,17 +5,33 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using MeterWeb;
+using System.IO;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Http;
+using MeterWeb.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
-namespace MeterWeb.Models
+
+
+namespace MeterWeb.Controllers
 {
+    [Authorize(Roles = "admin, user")]
     public class FlatsController : Controller
     {
         private readonly DBLibraryContext _context;
-
-        public FlatsController(DBLibraryContext context)
+        private readonly ClaimsPrincipal _user;
+        private readonly UserManager<User> _userManager;
+        public FlatsController(DBLibraryContext context, IHttpContextAccessor accessor, UserManager<User> userManager)
         {
             _context = context;
+            _user = accessor.HttpContext.User;
+            _userManager = userManager;
+
         }
 
         // GET: Flats
@@ -42,8 +58,9 @@ namespace MeterWeb.Models
             //return View(flat);
             return RedirectToAction("Index", "Meters", new { id = flat.FlatId, address = flat.FlatAddress});
         }
-
+        //[Authorize(Roles = "admin, user")]
         // GET: Flats/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -52,15 +69,17 @@ namespace MeterWeb.Models
         // POST: Flats/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[Authorize(Roles = "admin, user")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FlatId,FlatAddress")] Flat flat)
         {
             if (ModelState.IsValid)
             {
+                flat.UserId = _userManager.GetUserId(HttpContext.User);
                 _context.Add(flat);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), "Home");
             }
             return View(flat);
         }
@@ -140,6 +159,21 @@ namespace MeterWeb.Models
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var flat = await _context.Flats.FindAsync(id);
+            var meterIds = _context.Meters.Where(m => m.MeterFlatId == id);
+
+
+
+            foreach (var item in meterIds)
+            {
+
+                var readingIds = _context.Readings.Where(r => r.ReadingMeterId == item.MeterId);
+                foreach (var item2 in readingIds)
+                {
+                    _context.Readings.Remove(item2);
+                }
+
+                _context.Meters.Remove(item);
+            }
             _context.Flats.Remove(flat);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

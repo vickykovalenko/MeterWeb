@@ -44,6 +44,8 @@ namespace MeterWeb
 
                 entity.Property(e => e.FlatId).HasColumnName("FLAT_ID");
 
+                entity.Property(e => e.UserId).HasColumnName("USER_ID");
+
                 entity.Property(e => e.FlatAddress)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -131,7 +133,6 @@ namespace MeterWeb
                 entity.ToTable("READINGS");
 
                 entity.Property(e => e.ReadingId)
-                    .ValueGeneratedNever()
                     .HasColumnName("READING_ID");
 
                 entity.Property(e => e.ReadingDataOfCurrentReading)
@@ -139,7 +140,7 @@ namespace MeterWeb
                     .HasColumnName("READING_DATA_OF_CURRENT_READING");
 
                 entity.Property(e => e.ReadingMeterId)
-                    .ValueGeneratedOnAdd()
+                    
                     .HasColumnName("READING_METER_ID");
 
                 entity.Property(e => e.ReadingPaymentId).HasColumnName("READING_PAYMENT_ID");

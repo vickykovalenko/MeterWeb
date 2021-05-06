@@ -45,8 +45,9 @@ namespace MeterWeb.Controllers
         }
 
         // GET: Tariffs/Create
-        public IActionResult Create()
+        public IActionResult Create([Bind("TariffId, TariffPrice, TariffServiceId, TariffPrivilege,TariffService")] Tariff tariff)
         {
+        
             ViewData["TariffServiceId"] = new SelectList(_context.Services, "ServiceId", "ServiceName");
             return View();
         }
@@ -56,18 +57,13 @@ namespace MeterWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TariffId,TariffPrice,TariffServiceId,TariffPrivilege")] Tariff tariff)
+        public async Task<IActionResult> Create()
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(tariff);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["TariffServiceId"] = new SelectList(_context.Services, "ServiceId", "ServiceName", tariff.TariffServiceId);
-            return View(tariff);
+       
+            return View();
         }
-
+    
+      
         // GET: Tariffs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

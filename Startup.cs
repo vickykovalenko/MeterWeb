@@ -6,12 +6,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using MeterWeb.Models;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
+using MoreLinq.Extensions;
+using GemBox.Document;
 
 namespace MeterWeb
 {
@@ -27,9 +31,43 @@ namespace MeterWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IUserValidator<User>, CustomUserValidator>();
+            services.AddTransient<IPasswordValidator<User>,
+            CustomPasswordValidator>(serv => new CustomPasswordValidator(6));
+
+
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DBLibraryContext>(options => options.UseSqlServer(connection));
             services.AddControllersWithViews();
+
+            string connectionIdentity = Configuration.GetConnectionString("IdentityConnection");
+            services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connectionIdentity));
+            services.AddControllersWithViews();
+
+        
+            services.AddIdentity<User, IdentityRole>(opts => {
+                opts.User.RequireUniqueEmail = true;    // унікальний email
+                opts.User.AllowedUserNameCharacters = ".@abcdefghijklmnopqrstuvwxyz"; // допустимі символи
+                opts.Password.RequiredLength = 5;   // мінімальна довжина
+                opts.Password.RequireNonAlphanumeric = false;   // чи потрібно алфавітно-цифрові символи
+                opts.Password.RequireLowercase = false; // чи потрібні символи в нижньому регістрі
+                opts.Password.RequireUppercase = false; // чи потрібні символи у верхньому регістрі
+                opts.Password.RequireDigit = true; // чи потрібні цифри
+            })
+                 .AddEntityFrameworkStores<IdentityContext>();
+
+
+            services.AddControllersWithViews();
+
+            /*services.Configure<IdentityOptions>(options =>
+            {
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@";
+                options.User.RequireUniqueEmail = true;
+            });*/
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,13 +88,17 @@ namespace MeterWeb
 
             app.UseRouting();
 
+
+            app.UseAuthentication(); // підключення аутентифікації
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Flats}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

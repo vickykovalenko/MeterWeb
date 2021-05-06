@@ -1,0 +1,42 @@
+﻿@model MeterWeb.ViewModel.RegisterViewModel
+<h2>Реєстрація нового користувача</h2>
+<form method="post" asp-controller="Account" asp-action="Register">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="SecondName"></label><br />
+        <input asp-for="SecondName" />
+        <span asp-validation-for="SecondName"></span>
+    </div>
+    <div>
+        <label asp-for="FirstName"></label><br />
+        <input asp-for="FirstName" />
+        <span asp-validation-for="FirstName"></span>
+    </div>
+    <div>
+        <label asp-for="MiddleName"></label><br />
+        <input asp-for="MiddleName" />
+        <span asp-validation-for="MiddleName"></span>
+    </div>
+    <div>
+        <label asp-for="Email"></label><br />
+        <input asp-for="Email" />
+        <span asp-validation-for="Email"></span>
+    </div>
+    <div>
+        <label asp-for="Password"></label><br />
+        <input asp-for="Password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+    <div>
+        <label asp-for="PasswordConfirm"></label><br />
+        <input asp-for="PasswordConfirm" />
+        <span asp-validation-for="PasswordConfirm"></span>
+    </div>
+    <br />
+    <div>
+        <input type="submit" value="Реєстрація" class="btn btn-secondary" />
+    </div>
+</form>
+
+
+

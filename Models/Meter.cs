@@ -16,18 +16,21 @@ namespace MeterWeb
         public int MeterId { get; set; }
         [Display(Name = "Номер лічильника")]
         [Required(ErrorMessage = "Поле не повинно бути порожнім ")]
-     
-        public int MeterNumbers { get; set; }
         
+        [RegularExpression(@"^[0-9][0-9]{5,7}$", ErrorMessage = "Некоректна довжина")]
+
+        public int MeterNumbers { get; set; }
+        [Display(Name = "Тип лічильника")]
         public int MeterTypeId { get; set; }
+        [Display(Name = "Адреса")]
         public int MeterFlatId { get; set; }
         [Required(ErrorMessage = "Поле не повинно бути порожнім ")]
         [Display(Name = "Дата останньої повірки")]
         public DateTime MeterDataLastReplacement { get; set; }
-        
 
+        [Display(Name = "Адреса")]
         public virtual Flat MeterFlat { get; set; }
-       
+        [Display(Name = "Тип лічильника")]
         public virtual MeterType MeterType { get; set; }
      
 

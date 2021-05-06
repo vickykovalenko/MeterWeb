@@ -1,10 +1,10 @@
 ﻿@model MeterWeb.Reading
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Додати покази";
 }
 
-<h1>Додати покази до лічильника @ViewBag.MeterNumber</h1>
+<h1>Додати покази до лічильника @ViewBag.MeterNumbers</h1>
 
 <h4>Reading</h4>
 <hr />
@@ -22,19 +22,21 @@
                 <input asp-for="ReadingDataOfCurrentReading" class="form-control" />
                 <span asp-validation-for="ReadingDataOfCurrentReading" class="text-danger"></span>
             </div>
+           
             <input type="hidden" value="@ViewBag.ReadingPaymentId" name="ReadingPaymentId" />
 
+            <input type="hidden" value="@ViewBag.MeterId" name="meterId" />
 
             <input type="hidden" value="@ViewBag.MeterId" name="ReadingMeterId" />
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Додати" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">До списку адрес</a>
 </div>
 
 @section Scripts {

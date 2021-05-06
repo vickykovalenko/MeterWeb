@@ -18,25 +18,34 @@
             <th>
                 @Html.DisplayNameFor(model => model.ReadingNumber)
             </th>
-        
+           
+           
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReadingDataOfCurrentReading)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReadingNumber)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ReadingId">Редагувати</a> |
-                <a asp-action="Details" asp-route-id="@item.ReadingId">Деталі</a> |
-                <a asp-action="Delete" asp-route-id="@item.ReadingId">Видалити</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReadingDataOfCurrentReading)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReadingNumber)
+                </td>
+                
+              
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ReadingId">Редагувати</a> |
+                    <a asp-action="Details" asp-route-id="@item.ReadingId">До оплати</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ReadingId">Видалити</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<div>
+
+</div>
+

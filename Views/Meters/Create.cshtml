@@ -1,12 +1,11 @@
 ﻿@model MeterWeb.Meter
 
 @{
-    ViewData["Title"] = "Додавання лічильника до квартири";
+    ViewData["Title"] = "Додавання лічильника за адресою";
 }
 
-<h1>Додавання лічильника до квартири @ViewBag.FlatAddress</h1>
+<h1>Додавання лічильника за адресою @ViewBag.FlatAddress</h1>
 
-<h4>Meter</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -30,14 +29,14 @@
 
 
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Додати" class="btn btn-success" />
             </div>
         </form>
 </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">До списку адрес</a>
 </div>
 
 @section Scripts {

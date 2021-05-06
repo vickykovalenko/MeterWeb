@@ -5,7 +5,24 @@
 }
 
 <h1>Лічильники за адресою @ViewBag.FlatAddress</h1>
+<div>
+    <h3>Оберіть excel-файл для завантаження</h3>
+    @using (Html.BeginForm("Import", "Meters", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
+    {
+        <div>
+            Завантажте Excel-файл:
+            <input type="file" name="fileExcel" id="fileExcel" />
+            <input type="hidden" value=@ViewBag.FlatId name="flatId"/>
+            <div>
+                <input type="submit" value="Завантажити" />
+            </div>
+        </div>}
+</div>
 
+<div>
+    <h3>Завантаження інформації в файл</h3>
+    <a asp-action="Export">Завантажити</a>
+</div>
 <p>
 
     @Html.ActionLink("Додати новий лічильник", "Create", new { flatId = @ViewBag.FlatId })
@@ -22,6 +39,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.MeterType.MeterTypeName)
             </th>
+          
         </tr>
     </thead>
     <tbody>
@@ -37,13 +55,41 @@
             <td>
                 @Html.DisplayFor(modelItem => item.MeterType.MeterTypeName)
             </td>
-
+            
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MeterId">Редагувати</a> |
-                <a asp-action="Details" asp-route-id="@item.MeterId">Деталі</a> |
+                <a asp-action="Details" asp-route-id="@item.MeterId">До показів</a> |
                 <a asp-action="Delete" asp-route-id="@item.MeterId">Видалити</a>
             </td>
         </tr>
         }
     </tbody>
 </table>
+<div class="container">
+    <div id="chart1"</div>
+</div>
+
+@section scripts{
+    <script type "text/javascript" src="https://www.gstatic.com/charts/loader.js">
+
+    </script>
+
+    <script>
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            $.get('/api/Charts/JsonData', function (JsonData) {
+                data = google.visualization.arrayToDataTable(JsonData, false);
+                var option = {
+                    title: "Співвідношення кількості лічильників та видів користувачів сайту",
+                    width: 500,
+                    height: 400,
+                    pieHole: 0.4,
+                };
+                chart = new google.visualization.PieChart(document.getElementById('chart1'));
+                chart.draw(data, option);
+            })
+        }
+    </script>
+}

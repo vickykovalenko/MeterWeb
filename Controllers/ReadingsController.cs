@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MeterWeb;
+using MoreLinq;
+using MoreLinq.Extensions;
 
 namespace MeterWeb.Controllers
 {
@@ -21,13 +23,15 @@ namespace MeterWeb.Controllers
         // GET: Readings
         public async Task<IActionResult> Index(int? id, int numbers)
         {
-            if (id == null) return RedirectToAction("Index", "Meters");
+            if (id == null) return RedirectToAction("Index", "Flats");
             //покази за лічильником
             ViewBag.MeterId = id;
             ViewBag.MeterNumbers = numbers;
            
 
             var readingsByMeter = _context.Readings.Where(r => r.ReadingMeterId == id).Include(r => r.ReadingPayment);
+            
+
             //var dBLibraryContext = _context.Readings.Include(r => r.ReadingMeter).Include(r => r.ReadingDataOfCurrentReading).Include(r => r.ReadingPayment);
             //return View(await dBLibraryContext.ToListAsync());
             return View(await readingsByMeter.ToListAsync());
@@ -71,11 +75,12 @@ namespace MeterWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int meterId, [Bind("ReadingId,ReadingDataOfCurrentReading,ReadingMeterId,ReadingPaymentId, ReadingNumber")] Reading reading)
+        public async Task<IActionResult> Create(int meterId, [Bind("PaymentTariffIdReadingId,ReadingDataOfCurrentReading,ReadingMeterId,ReadingPaymentId, ReadingNumber")] Reading reading)
         {
             //reading.ReadingMeterId = meterId;
             if (ModelState.IsValid)
             {
+                reading.ReadingPaymentId = 2;
                 _context.Add(reading);
                 await _context.SaveChangesAsync();
                 //return RedirectToAction(nameof(Index));

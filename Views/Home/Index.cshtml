@@ -1,8 +1,115 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<MeterWeb.Flat>
+
+
+@{
+    ViewData["Title"] = "Подання лічильників онлайн";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (User.Identity.IsAuthenticated)
+{
+    <h3>@User.Identity.Name</h3>
+
+
+
+    <form method="post" asp-controller="Account" asp-action="Logout">
+        <input type="submit" value="Вихід" class="btn btn-secondary" />
+    </form>
+    <div class="text-center">
+        <h4>
+            Лічильники за адресами
+        </h4>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.FlatAddress)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FlatAddress)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-controller="Flats" asp-route-id="@item.FlatId">Редагувати</a> |
+                        <a asp-action="Details" asp-controller="Flats" asp-route-id="@item.FlatId">Переглянути лічильники</a> |
+                        <a asp-action="Delete" asp-controller="Flats" asp-route-id="@item.FlatId">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="text-center">
+        @using (Html.BeginForm("Create", "Flats", FormMethod.Get))
+        {
+            <input type="submit" value="Додати адресу" class="btn btn-success" />
+            <input type="hidden" name="returnController" value="Home" />
+            <input type="hidden" name="returnAction" value="Index" />}
+    </div>
+
+    <div class="container">
+        <div id="Chart2"></div>
+        
+    </div>
+
+    @section scripts{
+        <script type "text/javascript" src="https://www.gstatic.com/charts/loader.js">
+
+        </script>
+
+        <script>
+    google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            $.get('/api/Charts/JsonData2', function (jsonData2) {
+                data = google.visualization.arrayToDataTable(jsonData2, false);
+                var option = {
+                    title: "Співвідношення кількості лічильників за адресами",
+                    width: 500,
+                    height: 400
+                };
+                chart = new google.visualization.Histogram(document.getElementById('Chart2'));
+                chart.draw(data, option);
+            })
+        }
+        </script>
+    }
+
+
+
+
+
+
+
+
+
+
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Подайте показники швидко.</h1>
+    </div>
+
+    <div class="text-center">
+        <form method="get" asp-controller="Account" asp-action="Register">
+            <p align="center">
+                <input type="submit" class="btn btn-secondary" style="width:200px" value="Зареєструватися" />
+            </p>
+        </form>
+        <form method="get" asp-controller="Account" asp-action="Login">
+            <p align="center">
+                <input type="submit" class="btn btn-success" style="width:200px" value="Увійти" />
+            </p>
+        </form>
+    </div>
+}
+
+
+

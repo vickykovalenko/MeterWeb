@@ -6,12 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MeterWeb;
+using MoreLinq;
+using MoreLinq.Extensions;
 
 namespace MeterWeb.Controllers
 {
     public class PaymentsController : Controller
     {
         private readonly DBLibraryContext _context;
+
 
         public PaymentsController(DBLibraryContext context)
         {
@@ -68,6 +71,7 @@ namespace MeterWeb.Controllers
             }
             ViewData["PaymentTariffId"] = new SelectList(_context.Tariffs, "TariffId", "TariffPrivilege", payment.PaymentTariffId);
             return View(payment);
+           
         }
 
         // GET: Payments/Edit/5

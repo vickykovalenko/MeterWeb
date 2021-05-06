@@ -1,14 +1,13 @@
 ﻿@model MeterWeb.Meter
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Видалення лічильника";
 }
 
-<h1>Delete</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+
+<h3>Ви впевнені, що хочете видалити лічильник?</h3>
 <div>
-    <h4>Meter</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -39,7 +38,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="MeterId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Видалити" class="btn btn-danger" /> |
+        <a asp-action="Index">Назад до адрес</a>
     </form>
 </div>
