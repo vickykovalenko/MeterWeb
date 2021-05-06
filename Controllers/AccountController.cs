@@ -30,6 +30,8 @@ namespace MeterWeb.Controllers
             return View();
         }
         [HttpPost]
+        [AllowAnonymous]
+
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -49,8 +51,9 @@ namespace MeterWeb.Controllers
                     // установка кукі
                     //await _signInManager.PasswordSignInAsync(model.Email, model.Password, false,  false);
 
+                    
+                    await  _userManager.AddToRoleAsync(user, "user");
                     await _signInManager.SignInAsync(user, false);
-                    //await  _userManager.AddToRoleAsync(user, "user");
 
                     return RedirectToAction("Index", "Home");
                     }
@@ -106,7 +109,6 @@ namespace MeterWeb.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
-
 
 
 
