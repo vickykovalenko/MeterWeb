@@ -136,6 +136,7 @@ namespace MeterWeb.Controllers
         }
 
         // GET: Flats/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -152,7 +153,7 @@ namespace MeterWeb.Controllers
 
             return View(flat);
         }
-
+        [Authorize(Roles = "admin")]
         // POST: Flats/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

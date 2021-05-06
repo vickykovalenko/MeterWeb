@@ -9,7 +9,8 @@ using ClosedXML.Excel;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using GemBox.Document;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MeterWeb.Controllers
 {
@@ -148,6 +149,7 @@ namespace MeterWeb.Controllers
         }
 
         // GET: Meters/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -167,11 +169,12 @@ namespace MeterWeb.Controllers
 
             return View(meter);
         }
-
+        [Authorize(Roles = "admin")]
+        public IActionResult MeterList() => View(_context.Meters.ToList());
         // POST: Meters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, int flatId)
         {
             var meter = await _context.Meters.FindAsync(id);
             var readingIds = _context.Readings.Where(r => r.ReadingMeterId == id);
@@ -182,6 +185,8 @@ namespace MeterWeb.Controllers
             _context.Meters.Remove(meter);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+            
+            
         }
 
         private bool MeterExists(int id)

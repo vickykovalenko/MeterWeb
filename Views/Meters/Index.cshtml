@@ -14,7 +14,7 @@
             <input type="file" name="fileExcel" id="fileExcel" />
             <input type="hidden" value=@ViewBag.FlatId name="flatId"/>
             <div>
-                <input type="submit" value="Завантажити" />
+                <input type="submit" value="Завантажити" class="active" />
             </div>
         </div>}
 </div>
@@ -26,6 +26,7 @@
 <p>
 
     @Html.ActionLink("Додати новий лічильник", "Create", new { flatId = @ViewBag.FlatId })
+
 </p>
 <table class="table">
     <thead>
@@ -59,7 +60,7 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MeterId">Редагувати</a> |
                 <a asp-action="Details" asp-route-id="@item.MeterId">До показів</a> |
-                <a asp-action="Delete" asp-route-id="@item.MeterId">Видалити</a>
+                <a asp-action="Delete" asp-route-id="@item.MeterId" >Видалити</a>
             </td>
         </tr>
         }
@@ -82,7 +83,7 @@
             $.get('/api/Charts/JsonData', function (JsonData) {
                 data = google.visualization.arrayToDataTable(JsonData, false);
                 var option = {
-                    title: "Співвідношення кількості лічильників та видів користувачів сайту",
+                    title: "Співвідношення кількості лічильників та їхніх видів у користувачів сайту",
                     width: 500,
                     height: 400,
                     pieHole: 0.4,
