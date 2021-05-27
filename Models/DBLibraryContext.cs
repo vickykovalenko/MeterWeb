@@ -25,6 +25,7 @@ namespace MeterWeb
         public virtual DbSet<Service> Services { get; set; }
         public virtual DbSet<Tariff> Tariffs { get; set; }
 
+       
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

@@ -21,7 +21,9 @@
 
 <div>
     <h3>Завантаження інформації в файл</h3>
-    <a asp-action="Export">Завантажити</a>
+    @Html.ActionLink("Експорт", "Export", new { flatId = @ViewBag.FlatId })
+
+
 </div>
 <p>
 

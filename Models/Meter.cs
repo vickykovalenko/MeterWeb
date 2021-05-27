@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 #nullable disable
 
@@ -13,6 +15,8 @@ namespace MeterWeb
             Readings = new HashSet<Reading>();
         }
 
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MeterId { get; set; }
         [Display(Name = "Номер лічильника")]
         [Required(ErrorMessage = "Поле не повинно бути порожнім ")]

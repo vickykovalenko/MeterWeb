@@ -14,11 +14,11 @@ namespace MeterWeb.Models
         {
             List<IdentityError> errors = new List<IdentityError>();
 
-            if (user.Email.ToLower().EndsWith("@spam.com"))
+            if (user.Email.ToLower().EndsWith("@yandex.ru")|| user.Email.ToLower().EndsWith("@mail.ru"))
             {
                 errors.Add(new IdentityError
                 {
-                    Description = "Данный домен находится в спам-базе. Выберите другой почтовый сервис"
+                    Description = "Даний домен знаходиться в спам-базі. Виберіть інший поштовий сервіс"
                 });
             }
             if (user.UserName.Contains("admin"))

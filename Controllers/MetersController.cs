@@ -11,6 +11,12 @@ using Microsoft.AspNetCore.Http;
 using GemBox.Document;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using MeterWeb.Models;
+using MeterWeb;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+
 
 namespace MeterWeb.Controllers
 {
@@ -149,7 +155,6 @@ namespace MeterWeb.Controllers
         }
 
         // GET: Meters/Delete/5
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -169,7 +174,6 @@ namespace MeterWeb.Controllers
 
             return View(meter);
         }
-        [Authorize(Roles = "admin")]
         public IActionResult MeterList() => View(_context.Meters.ToList());
         // POST: Meters/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -196,7 +200,7 @@ namespace MeterWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Import(IFormFile fileExcel, int flatId)
+        public async Task<IActionResult> Import(IFormFile fileExcel, int flatId, MeterType model)
         {
             if (ModelState.IsValid)
             {
@@ -211,21 +215,27 @@ namespace MeterWeb.Controllers
                             foreach (IXLWorksheet worksheet in workBook.Worksheets)
                             {
                                 //worksheet.Name - назва типу лічильника. Пробуємо знайти в БД, якщо відсутній, то створюємо новий
-                                MeterType metertype;
-                                var m = (from met in _context.MeterTypes
-                                         where met.MeterTypeName.Contains(worksheet.Name)
+                                Meter newmet;
+                                var m = (from met in _context.Meters
+                                         where Convert.ToString(met.MeterNumbers).
+                                         Contains(worksheet.Name)
                                          select met).ToList();
                                 if (m.Count > 0)
                                 {
-                                    metertype = m[0];
+                                    newmet = m[0];
                                 }
                                 else
                                 {
-                                    metertype = new MeterType();
-                                    metertype.MeterTypeName = worksheet.Name;
+                                    newmet = new Meter();
 
-                                    //додати в контекст
-                                    _context.MeterTypes.Add(metertype);
+                                    //newmet.MeterId = 1;
+                                    newmet.MeterNumbers = Convert.ToInt32(worksheet.Name);
+                                    //додати в контекст metertypeid??
+                                    newmet.MeterTypeId = 1;
+                                    newmet.MeterFlatId = flatId;
+                                    newmet.MeterDataLastReplacement = Convert.ToDateTime("01.01.2020");
+
+                                    _context.Meters.Add(newmet);
 
                                 }
                                 //перегляд усіх рядків                    
@@ -233,15 +243,16 @@ namespace MeterWeb.Controllers
                                 {
                                     try
                                     {
-                                        Meter meter = new Meter();
+                                        Reading reading = new Reading();
                                         //meter.MeterFlatId = Convert.ToInt32(row.Cell(1).Value);
-                                        meter.MeterFlatId = flatId;
-                                        meter.MeterNumbers = Convert.ToInt32(row.Cell(1).Value);
-                                        meter.MeterDataLastReplacement = Convert.ToDateTime(row.Cell(2).Value);
-                                        meter.MeterTypeId = metertype.MeterTypeId;
+                                        reading.ReadingDataOfCurrentReading = Convert.ToDateTime(row.Cell(1).Value);
+                                        reading.ReadingMeterId = newmet.MeterId;
+                                        reading.ReadingPaymentId = Convert.ToInt32(row.Cell(2).Value);
+                                        reading.ReadingNumber = Convert.ToInt32(row.Cell(3).Value);
                                         
 
-                                        _context.Meters.Add(meter);
+
+                                        _context.Readings.Add(reading);
                                     }
                                     catch (Exception e)
                                     {
@@ -262,31 +273,32 @@ namespace MeterWeb.Controllers
         }
 
 
-        public ActionResult Export()
+        public ActionResult Export(int flatId)
         {
+            
             using (XLWorkbook workbook = new XLWorkbook(XLEventTracking.Disabled))
             {
-                var metertypes = _context.MeterTypes.Include("Meters").ToList();
-                //тут, для прикладу ми пишемо усі книжки з БД, в своїх проектах ТАК НЕ РОБИТИ (писати лише вибрані)
-                foreach (var m in metertypes)
+                var meters = _context.Meters.Include("Readings").Where(m => m.MeterFlatId == flatId).ToList();
+                foreach (var m in meters)
                 {
-                    var worksheet = workbook.Worksheets.Add(m.MeterTypeName);
-                    worksheet.Cell("A1").Value = "MeterFlatId";
-
-                    worksheet.Cell("B1").Value = "MeterNumbers";
-                    worksheet.Cell("C1").Value = "DataLastReplacement";
-                   
+                    var worksheet = workbook.Worksheets.Add(Convert.ToString(m.MeterNumbers));
+                    worksheet.Cell("A1").Value = "ReadingDataOfCurrentReplacement";
+                    worksheet.Cell("B1").Value = "ReadingPaymentId";
+                    worksheet.Cell("C1").Value = "ReadingNumber";
 
                     worksheet.Row(1).Style.Font.Bold = true;
-                    var meters = m.Meters.ToList();
-
+                    var readings = m.Readings.ToList();
+                    //var readings = _context.Readings.Where(r => r.ReadingMeterId == id).Include(r => r.ReadingMeter).ToList();
                     //нумерація рядків/стовпчиків починається з індекса 1 (не 0)
-                    for (int i = 0; i < meters.Count; i++)
+                    for (int i = 0; i < readings.Count; i++)
                     {
-                        worksheet.Cell(i + 2, 1).Value = meters[i].MeterFlatId;
-                        worksheet.Cell(i + 2, 2).Value = meters[i].MeterNumbers;
-                        worksheet.Cell(i + 2, 3).Value = meters[i].MeterDataLastReplacement;
+                       // var readingsByMeter = _context.Readings.Where(r => r. == readings[i].ReadingMeterId).ToList();
 
+                        worksheet.Cell(i + 2, 1).Value = readings[i].ReadingDataOfCurrentReading;
+                        worksheet.Cell(i + 2, 2).Value = readings[i].ReadingPayment;
+                        worksheet.Cell(i + 2, 3).Value = readings[i].ReadingNumber;
+
+                        //var readingsByMeter = _context.Meters.Where(m => m.MeterId == readings[i].ReadingMeterId).ToList();
 
 
 
